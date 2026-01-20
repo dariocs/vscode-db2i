@@ -6,8 +6,11 @@ import { ConnectionResult, QueryResult, ServerRequest, ServerResponse } from "@i
 import { JobLogEntry, JobStatus } from "./types";
 import Statement from "../database/statement";
 import { NamingFormats } from "./manager";
+import JSONBig from 'json-bigint';
 
 const DB2I_VERSION = (process.env[`DB2I_VERSION`] || `<version unknown>`) + ((process.env.DEV) ? ``:`-dev`);
+
+const jsonBig = JSONBig({ storeAsString: true });
 
 export class OldSQLJob extends SQLJob {
   private channel: any;
@@ -98,7 +101,7 @@ export class OldSQLJob extends SQLJob {
               outString = ``;
               if (this.isTracingChannelData) ServerComponent.writeOutput(thisMsg);
               try {
-                let response: ServerResponse = JSON.parse(thisMsg);
+                const response: ServerResponse = jsonBig.parse(thisMsg) as ServerResponse;
                 this.responseEmitter.emit(response.id, response);
               } catch (e: any) {
                 console.log(`Error: ` + e);
